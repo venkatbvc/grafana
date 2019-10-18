@@ -12,7 +12,7 @@ import { changeQuery, modifyQueries, runQueries, addQueryRow } from './state/act
 // Types
 import { StoreState } from 'app/types';
 import { TimeRange, AbsoluteTimeRange } from '@grafana/data';
-import { DataQuery, DataSourceApi, QueryFixAction, DataSourceStatus, PanelData } from '@grafana/ui';
+import { DataQuery, DataSourceApi, QueryFixAction, PanelData } from '@grafana/ui';
 import { HistoryItem, ExploreItemState, ExploreId, ExploreMode } from 'app/types/explore';
 import { Emitter } from 'app/core/utils/emitter';
 import { highlightLogsExpressionAction, removeQueryRowAction } from './state/actionTypes';
@@ -30,7 +30,6 @@ interface QueryRowProps extends PropsFromParent {
   className?: string;
   exploreId: ExploreId;
   datasourceInstance: DataSourceApi;
-  datasourceStatus: DataSourceStatus;
   highlightLogsExpressionAction: typeof highlightLogsExpressionAction;
   history: HistoryItem[];
   query: DataQuery;
@@ -115,7 +114,6 @@ export class QueryRow extends PureComponent<QueryRowProps, QueryRowState> {
       exploreEvents,
       range,
       absoluteRange,
-      datasourceStatus,
       queryResponse,
       latency,
       mode,
@@ -140,7 +138,6 @@ export class QueryRow extends PureComponent<QueryRowProps, QueryRowState> {
             //@ts-ignore
             <QueryField
               datasource={datasourceInstance}
-              datasourceStatus={datasourceStatus}
               query={query}
               history={history}
               onRunQuery={this.onRunQuery}
@@ -197,19 +194,8 @@ export class QueryRow extends PureComponent<QueryRowProps, QueryRowState> {
 function mapStateToProps(state: StoreState, { exploreId, index }: QueryRowProps) {
   const explore = state.explore;
   const item: ExploreItemState = explore[exploreId];
-  const {
-    datasourceInstance,
-    history,
-    queries,
-    range,
-    absoluteRange,
-    datasourceError,
-    latency,
-    mode,
-    queryResponse,
-  } = item;
+  const { datasourceInstance, history, queries, range, absoluteRange, latency, mode, queryResponse } = item;
   const query = queries[index];
-  const datasourceStatus = datasourceError ? DataSourceStatus.Disconnected : DataSourceStatus.Connected;
 
   return {
     datasourceInstance,
@@ -217,7 +203,6 @@ function mapStateToProps(state: StoreState, { exploreId, index }: QueryRowProps)
     query,
     range,
     absoluteRange,
-    datasourceStatus,
     queryResponse,
     latency,
     mode,
